@@ -260,6 +260,9 @@ class Users(models.Model):
     regdate = models.DateTimeField(db_column='regDate', blank=True, null=True)  # Field name made lowercase.
     updationdate = models.DateTimeField(db_column='updationDate', blank=True, null=True)  # Field name made lowercase.
 
+    def __str__(self):
+        return self.firstname
+
     class Meta:
         managed = False
         db_table = 'users'

@@ -23,7 +23,8 @@
 				</div>
 
 				<div class="box-login">
-					<form class="form-login" method="post">
+					<form class="form-login" method="post" action="{% url 'user_login' %}">
+						 {% csrf_token %}
 						<fieldset>
 							<legend>
 								Sign in to your account
@@ -33,13 +34,17 @@
 								<span style="color:red;"><?php echo $_SESSION['errmsg']; ?><?php echo $_SESSION['errmsg']="";?></span>
 							</p>
 							<div class="form-group">
+								{{ form.username.errors }}
 								<span class="input-icon">
-									<input type="text" class="form-control" name="username" placeholder="Email">
+<!--									<input type="text" class="form-control" name="patient_username" placeholder="Email">-->
+									 {{ form.username }}
 									<i class="fa fa-user"></i> </span>
 							</div>
 							<div class="form-group form-actions">
+								{{ form.user_password.errors }}
 								<span class="input-icon">
-									<input type="password" class="form-control password" name="password" placeholder="Password">
+<!--									<input type="password" class="form-control password" name="patient_password" placeholder="Password">-->
+									 {{ form.user_password }}
 									<i class="fa fa-lock"></i>
 									 </span><a href="forgot-password.php">
 									Forgot Password ?
