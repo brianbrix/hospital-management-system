@@ -77,7 +77,7 @@ WSGI_APPLICATION = 'hms.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 # sudo /etc/init.d/apache2 stop
-#  python manage.py inspectdb > hospital_management_system/models.py-- this is a command to use alraedy existing(legacy) databases
+#  python3 manage.py inspectdb > hospital_management_system/models.py-- this is a command to use alraedy existing(legacy) databases
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -110,7 +110,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
+AUTH_USER_MODEL = 'hospital_management_system.Users'
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
@@ -126,4 +126,3 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
-
