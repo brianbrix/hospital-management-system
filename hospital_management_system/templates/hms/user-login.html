@@ -3,17 +3,8 @@
 {% load static %}
 	<head>
 		<title>Patient Login</title>
-
-		<link href="http://fonts.googleapis.com/css?family=Lato:300,400,400italic,600,700|Raleway:300,400,500,600,700|Crete+Round:400italic" rel="stylesheet" type="text/css" />
-		<link rel="stylesheet" href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}">
-		<link rel="stylesheet" href="{% static 'vendor/fontawesome/css/font-awesome.min.css' %}">
-		<link rel="stylesheet" href="{% static 'vendor/themify-icons/themify-icons.min.css' %}">
-		<link href="{% static 'vendor/animate.css/animate.min.css' %}" rel="stylesheet" media="screen">
-		<link href="{% static 'vendor/perfect-scrollbar/perfect-scrollbar.min.css' %}" rel="stylesheet" media="screen">
-		<link href="{% static 'vendor/switchery/switchery.min.css' %}" rel="stylesheet" media="screen">
-		<link rel="stylesheet" href="{% static 'assets/css/styles.css' %}">
-		<link rel="stylesheet" href="{% static 'assets/css/plugins.css' %}">
-		<link rel="stylesheet" href="{% static 'assets/css/themes/theme-1.css' %}" id="skin_color" />
+			{% include 'hms/links.html' %}
+			{% include 'hms/messages.html' %}
 	</head>
 	<body class="login">
 		<div class="row">
@@ -56,8 +47,8 @@
 								</button>
 							</div>
 							<div class="new-account">
-								Dont have an account yet?
-								<a href="registration.php">
+								Don't have an account yet?
+								<a href="{% url 'user_register' %}">
 									Create an account
 								</a>
 							</div>
@@ -83,6 +74,15 @@
 		<script src="assets/js/main.js"></script>
 
 		<script src="assets/js/login.js"></script>
+		{% if messages %}
+		  <script>
+			  {% for message in messages %}
+				  $(document).ready(function () {
+					  $('.toast').toast('show');
+				  });
+			  {% endfor %}
+		  </script>
+		{% endif %}
 		<script>
 			jQuery(document).ready(function() {
 				Main.init();

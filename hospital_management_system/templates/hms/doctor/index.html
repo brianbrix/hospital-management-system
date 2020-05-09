@@ -3,17 +3,7 @@
 <html lang="en">
 	<head>
 		<title>Doctor Login</title>
-
-		<link href="http://fonts.googleapis.com/css?family=Lato:300,400,400italic,600,700|Raleway:300,400,500,600,700|Crete+Round:400italic" rel="stylesheet" type="text/css" />
-		<link rel="stylesheet" href="vendor/bootstrap/css/bootstrap.min.css">
-		<link rel="stylesheet" href="vendor/fontawesome/css/font-awesome.min.css">
-		<link rel="stylesheet" href="vendor/themify-icons/themify-icons.min.css">
-		<link href="vendor/animate.css/animate.min.css" rel="stylesheet" media="screen">
-		<link href="vendor/perfect-scrollbar/perfect-scrollbar.min.css" rel="stylesheet" media="screen">
-		<link href="vendor/switchery/switchery.min.css" rel="stylesheet" media="screen">
-		<link rel="stylesheet" href="assets/css/styles.css">
-		<link rel="stylesheet" href="assets/css/plugins.css">
-		<link rel="stylesheet" href="assets/css/themes/theme-1.css" id="skin_color" />
+			{% include 'hms/links.html' %}
 	</head>
 	<body class="login">
 		<div class="row">
@@ -23,7 +13,9 @@
 				</div>
 
 				<div class="box-login">
-					<form class="form-login" method="post">
+					<form class="form-login" action="{% url 'doctor_login' %}" method="post">
+												 {% csrf_token %}
+
 						<fieldset>
 							<legend>
 								Sign in to your account
@@ -34,12 +26,14 @@
 							</p>
 							<div class="form-group">
 								<span class="input-icon">
-									<input type="text" class="form-control" name="username" placeholder="email@example.com">
+									{{ form.doc_username }}
+<!--									<input type="text" class="form-control" name="username" placeholder="email@example.com">-->
 									<i class="fa fa-user"></i> </span>
 							</div>
 							<div class="form-group form-actions">
 								<span class="input-icon">
-									<input type="password" class="form-control password" name="password" placeholder="Password">
+<!--									<input type="password" class="form-control password" name="password" placeholder="Password">-->
+									{{ form.doctor_password }}
 									<i class="fa fa-lock"></i>
 									 </span>
 									 <a href="forgot-password.php">

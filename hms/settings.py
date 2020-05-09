@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework'
 ]
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
@@ -52,7 +53,14 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'hms.urls'
+REST_FRAMEWORK = {
+  'DEFAULT_AUTHENTICATION_CLASSES': (
+        'hospital_management_system.backends.JWTUserAuthentication',
+        'hospital_management_system.backends.JWTDoctorAuthentication',
+  )
+}
 
+# AUTHENTICATION_BACKENDS = ['hospital_management_system.backends.DoctorBackend']
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
