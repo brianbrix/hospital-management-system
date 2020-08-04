@@ -152,7 +152,7 @@ class AccountManager(BaseUserManager):
 
     def create_superuser(self, password, user_email=None):
         user = self.model(
-            user_email= user_email,
+            user_email=user_email,
             password=password,
         )
         user.is_superuser = True
@@ -204,50 +204,56 @@ class Users(AbstractBaseUser, PermissionsMixin):
         db_table = 'users'
 
     def __str__(self):
-        return self.user_email
+        return "{} {}".format(str(self.firstname), str(self.lastname)) if self.user_email else "No name"
 
 
-class DocAccountManager(BaseUserManager):
-    def create_doctor(self, specialization, doctorname, address, docfees, contactno, docemail, password):
-        doc = self.model(specialization=specialization, doctorname=doctorname, address=address, docfees=docfees,
-                         contactno=contactno, docemail=docemail,
-                         password=password)
-        doc.set_password(password)
-        doc.is_staff = False
-        doc.is_superuser = False
-        doc.save(using=self._db)
-        return doc
-
-    def create_superuser(self):
-        pass
-
-    def get_by_natural_key(self, docemail_):
-        print(docemail_)
-        return self.get(docemail=docemail_)
+# class DocAccountManager(BaseUserManager):
+#     def create_doctor(self, specialization, doctorname, address, docfees, contactno, docemail, password):
+#         doc = self.model(specialization=specialization, doctorname=doctorname, address=address, docfees=docfees,
+#                          contactno=contactno, docemail=docemail,
+#                          password=password)
+#         doc.set_password(password)
+#         doc.is_staff = False
+#         doc.is_superuser = False
+#         doc.save(using=self._db)
+#         return doc
+#
+#     def create_superuser(self):
+#         pass
+#
+#     def get_by_natural_key(self, docemail_):
+#         print(docemail_)
+#         return self.get(docemail=docemail_)
+#
+#     class Meta:
+#         managed = True
+#
+#
+class Doctorspecilization(models.Model):
+    specilization = models.CharField(max_length=255, blank=True, null=True)
+    creationdate = models.DateTimeField(db_column='creationDate', blank=True, null=True)  # Field name made lowercase.
+    updationdate = models.DateTimeField(db_column='updationDate', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = True
+        db_table = 'doctorspecilization'
+
+    def __str__(self):
+        return self.specilization
 
 
-class Doctors(Users, models.Model):
-    doc = models.OneToOneField(
-        Users,
-        on_delete=models.CASCADE,
-        primary_key=True,
-    )
+class Doctors(models.Model):
+    # doc = models.OneToOneField(
+    #     Users,
+    #     on_delete=models.CASCADE, parent_link=True
+    # )
 
-    specialization = models.CharField(max_length=255, blank=True, null=True, default="Doc")
-    doctorname = models.CharField(db_column='doctorName', max_length=255, blank=True,
-                                  null=True)  # Field name made lowercase.
+    specialization = models.ForeignKey(Doctorspecilization, on_delete=models.CASCADE)
+    doctorname = models.ForeignKey(Users, on_delete=models.CASCADE)
     docfees = models.CharField(db_column='docFees', max_length=255, blank=True, null=True)  # Field name made lowercase.
     contactno = models.BigIntegerField(blank=True, null=True)
     creationdate = models.DateTimeField(db_column='creationDate', blank=True, null=True,
                                         default=django.utils.timezone.now)  # Field name made lowercase.
-    REQUIRED_FIELDS = ['password']
-    USERNAME_FIELD = 'user_email'
-    is_anonymous = False
-    is_authenticated = True
-    objects = DocAccountManager()
 
     class Meta:
         managed = True
@@ -290,16 +296,6 @@ class Doctorslog(models.Model):
     class Meta:
         managed = True
         db_table = 'doctorslog'
-
-
-class Doctorspecilization(models.Model):
-    specilization = models.CharField(max_length=255, blank=True, null=True)
-    creationdate = models.DateTimeField(db_column='creationDate', blank=True, null=True)  # Field name made lowercase.
-    updationdate = models.DateTimeField(db_column='updationDate', blank=True, null=True)  # Field name made lowercase.
-
-    class Meta:
-        managed = True
-        db_table = 'doctorspecilization'
 
 
 class Tblcontactus(models.Model):
