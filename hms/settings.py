@@ -82,10 +82,9 @@ TEMPLATE_CONTEXT_PROCESSORS = [
 
 WSGI_APPLICATION = 'hms.wsgi.application'
 
-# Database
-# https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-# sudo /etc/init.d/apache2 stop
-#  python3 manage.py inspectdb > hospital_management_system/models.py-- this is a command to use alraedy existing(legacy) databases
+# Database https://docs.djangoproject.com/en/3.0/ref/settings/#databases sudo /etc/init.d/apache2 stop python3
+# manage.py inspectdb > hospital_management_system/models.py-- this is a command to use alraedy existing(legacy)
+# databases
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -121,7 +120,7 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTH_USER_MODEL = 'hospital_management_system.Users'
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
-
+SESSION_COOKIE_SECURE = False
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'

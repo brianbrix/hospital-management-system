@@ -1,6 +1,7 @@
 from _md5 import md5
 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError
 from django.shortcuts import render, redirect
@@ -8,7 +9,10 @@ from django.http import *
 from django.template import loader
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.template.context_processors import csrf
+from django.utils.decorators import method_decorator
+from django.views import View
 from django.views.decorators.csrf import csrf_exempt, csrf_protect, requires_csrf_token
+from django.views.generic import FormView
 from rest_framework.decorators import api_view
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
@@ -74,6 +78,7 @@ def user_register(request):
                     "lastname": lastname,
                     "address": address,
                     "city": city,
+                    "gender": gender,
                     "password": password
                 }
                 if serialized.create(data):
@@ -86,20 +91,32 @@ def user_register(request):
                 user.delete()
                 return HttpResponse(e)
         else:
-            print("Bad form")
-
-        # template = loader.get_template('hms/user-register.html')
+            print("Please check the serializer")
+            messages.warning(request, 'Failed to register! Please try again later.')
     else:
         form = CustomUserCreationForm()
     return render(request, 'hms/user-register.html', {'form': form})
 
 
-@csrf_exempt
-def user_login(request):
-    template = loader.get_template('hms/dashboard.html')
-    context = {}
-    if request.method == 'POST':
-        form = LoginForm(request.POST)
+class LoginView(View):
+    form = LoginForm
+    initial = {'key': 'value'}
+    template_name = 'hms/user-login.html'
+    serializer_class = UserLoginSerializer
+
+    @classmethod
+    def get_extra_actions(cls):
+        return []
+
+    def get(self, request, *args, **kwargs):
+        form = self.form(initial=self.initial)
+        return render(request, self.template_name, {'form': form})
+
+    # @method_decorator(csrf_protect)
+    def post(self, request, *args, **kwargs):
+        template = loader.get_template('hms/dashboard.html')
+        context = {}
+        form = LoginForm(request.POST or None)
         if form.is_valid():
             username = form.cleaned_data['username']
             password = form.cleaned_data['user_password']
@@ -108,24 +125,78 @@ def user_login(request):
                 if user.is_active:
                     login(request, user)
                     request.session['username'] = username
-                    return HttpResponse(template.render(context, request))
+                    # return HttpResponse(template.render(context, request))
+                    return redirect('user_dashboard')
             else:
-                print("Someone tried to login and failed.")
-                print("They used username: {} and password: {}".format(username, password))
-                # return HttpResponseRedirect(reverse('user_login', args=()))
                 return render(request, 'hms/user-login.html', {'form': form})
-
-    else:
-        form = LoginForm()
-    return render(request, 'hms/user-login.html', {'form': form})
+        return render(request, 'hms/user-login.html', {'form': form})
 
 
-def logout(request):
-    try:
-        del request.session['username']
-    except KeyError:
-        pass
-    return HttpResponse("You're logged out.")
+class USerDashView(View):
+    @method_decorator(login_required)
+    def get(self, request):
+        return render(request, 'hms/dashboard.html')
+
+
+class AppointmentHistoryView(View):
+    @method_decorator(login_required)
+    def get(self, request):
+        return render(request, 'hms/appointment_history.html')
+
+
+class BookAppointmentView(View):
+    @method_decorator(login_required)
+    def get(self, request):
+        return render(request, 'hms/book_appointment.html')
+
+
+# @login_required()
+# def user_dashboard(request):
+#     return render(request, 'hms/dashboard.html')
+
+
+# @csrf_exempt
+# def user_login(request):
+#     template = loader.get_template('hms/dashboard.html')
+#     context = {}
+#     if request.method == 'POST':
+#         form = LoginForm(request.POST or None)
+#         if form.is_valid():
+#             username = form.cleaned_data['username']
+#             password = form.cleaned_data['user_password']
+#             user = authenticate(username=username, password=password)
+#             print("user", user)
+#             if user is not None:
+#                 if user.is_active:
+#                     # print(user)
+#                     login(request, user)
+#                     request.session['username'] = username
+#                     return HttpResponse(template.render(context, request))
+#             else:
+#                 # raise forms.ValidationError("Sorry, that login was invalid. Please try again.")
+#                 # print("Someone tried to login and failed.")
+#                 # print("They used username: {} and password: {}".format(username, password))
+#                 # # return HttpResponseRedirect(reverse('user_login', args=()))
+#                 return render(request, 'hms/user-login.html', {'form': form})
+#
+#     else:
+#         form = LoginForm()
+#     return render(request, 'hms/user-login.html', {'form': form})
+
+
+# def logout(request):
+#     try:
+#         logout(request)
+#         del request.session['username']
+#         return redirect('index')
+#     except KeyError:
+#         pass
+#     return HttpResponse("You're logged out.")
+
+class LogoutView(View):
+    def get(self, request):
+        logout(request)
+        return HttpResponseRedirect('hms/user-login.html')
 
 
 def admin_login(request):

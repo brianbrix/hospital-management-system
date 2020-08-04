@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth import authenticate
 from django.contrib.auth.forms import UserCreationForm
 
 from hospital_management_system.models import *
@@ -33,6 +34,20 @@ class LoginForm(forms.Form):
         attrs={'placeholder': 'email@example.com', "class": "form-control"}))
     user_password = forms.CharField(
         widget=forms.PasswordInput(attrs={'placeholder': 'password', "class": "form-control"}))
+
+    # def clean(self):
+    #     username = self.cleaned_data.get('username')
+    #     password = self.cleaned_data.get('user_password')
+    #     user = authenticate(username=username, password=password)
+    #     if not user or not user.is_active:
+    #         raise forms.ValidationError("Sorry, that login was invalid. Please try again.")
+    #     return self.cleaned_data
+    #
+    # def login(self, request):
+    #     username = self.cleaned_data.get('username')
+    #     password = self.cleaned_data.get('user_password')
+    #     user = authenticate(username=username, password=password)
+    #     return user
 
     class Meta:
         model = Users

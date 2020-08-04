@@ -8,6 +8,7 @@
 import time
 from datetime import datetime, timedelta
 
+import django
 import jwt
 from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
@@ -26,28 +27,6 @@ class Admin(models.Model):
     class Meta:
         managed = True
         db_table = 'admin'
-
-
-class Appointment(models.Model):
-    doctorspecialization = models.CharField(db_column='doctorSpecialization', max_length=255, blank=True,
-                                            null=True)  # Field name made lowercase.
-    doctorid = models.IntegerField(db_column='doctorId', blank=True, null=True)  # Field name made lowercase.
-    userid = models.IntegerField(db_column='userId', blank=True, null=True)  # Field name made lowercase.
-    consultancyfees = models.IntegerField(db_column='consultancyFees', blank=True,
-                                          null=True)  # Field name made lowercase.
-    appointmentdate = models.CharField(db_column='appointmentDate', max_length=255, blank=True,
-                                       null=True)  # Field name made lowercase.
-    appointmenttime = models.CharField(db_column='appointmentTime', max_length=255, blank=True,
-                                       null=True)  # Field name made lowercase.
-    postingdate = models.DateTimeField(db_column='postingDate', blank=True, null=True)  # Field name made lowercase.
-    userstatus = models.IntegerField(db_column='userStatus', blank=True, null=True)  # Field name made lowercase.
-    doctorstatus = models.IntegerField(db_column='doctorStatus', blank=True, null=True)  # Field name made lowercase.
-    updationdate = models.DateTimeField(db_column='updationDate', blank=True, null=True)  # Field name made lowercase.
-    doc_notes = models.TextField(blank=True, null=True)
-
-    class Meta:
-        managed = True
-        db_table = 'appointment'
 
 
 # class AuthGroup(models.Model):
@@ -159,6 +138,147 @@ class Appointment(models.Model):
 #         managed = True
 #         db_table = 'django_session'
 
+
+class AccountManager(BaseUserManager):
+    def create_user(self, user_email, firstname, lastname, address, city, gender, password):
+        user = self.model(user_email=user_email, firstname=firstname, lastname=lastname, address=address, city=city,
+                          gender=gender,
+                          password=password)
+        user.set_password(password)
+        user.is_staff = False
+        user.is_superuser = False
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, password, user_email=None):
+        user = self.model(
+            user_email= user_email,
+            password=password,
+        )
+        user.is_superuser = True
+        user.save(using=self._db)
+        return user
+
+    def get_by_natural_key(self, email_):
+        print(email_)
+        return self.get(user_email=email_)
+
+    class Meta:
+        managed = True
+
+
+class Users(AbstractBaseUser, PermissionsMixin):
+    firstname = models.CharField(db_column='firstName', max_length=255, blank=True,
+                                 null=True)  # Field name made lowercase.
+    lastname = models.CharField(db_column='lastName', max_length=255, blank=True,
+                                null=True)  # Field name made lowercase.
+    address = models.CharField(blank=True, max_length=255,
+                               null=True)
+    city = models.CharField(max_length=255, blank=True, null=True)
+    gender = models.CharField(max_length=255, blank=True, null=True)
+    user_email = models.CharField(max_length=255, blank=True, null=True, unique=True)
+    password = models.CharField(max_length=255, blank=True, null=True)
+    regdate = models.DateTimeField(db_column='regDate', blank=True, null=True,
+                                   default=django.utils.timezone.now)  # Field name made lowercase.
+    updationdate = models.DateTimeField(db_column='updationDate', blank=True, null=True)  # Field name made lowercase.
+    users_ptr = models.CharField(max_length=100, default=False)
+    REQUIRED_FIELDS = ['password']
+    USERNAME_FIELD = 'user_email'
+    is_anonymous = False
+    is_authenticated = True
+    is_staff = True
+    is_superuser = True
+    objects = AccountManager()
+
+    @property
+    def token(self):
+        dt = datetime.now() + timedelta()
+        token = jwt.encode({
+            'id': self.user_email,
+            'exp': int(time.mktime(dt.timetuple()))
+        }, settings.SECRET_KEY, algorithm='HS256')
+        return token.decode('utf-8')
+
+    class Meta:
+        managed = True
+        db_table = 'users'
+
+    def __str__(self):
+        return self.user_email
+
+
+class DocAccountManager(BaseUserManager):
+    def create_doctor(self, specialization, doctorname, address, docfees, contactno, docemail, password):
+        doc = self.model(specialization=specialization, doctorname=doctorname, address=address, docfees=docfees,
+                         contactno=contactno, docemail=docemail,
+                         password=password)
+        doc.set_password(password)
+        doc.is_staff = False
+        doc.is_superuser = False
+        doc.save(using=self._db)
+        return doc
+
+    def create_superuser(self):
+        pass
+
+    def get_by_natural_key(self, docemail_):
+        print(docemail_)
+        return self.get(docemail=docemail_)
+
+    class Meta:
+        managed = True
+
+
+class Doctors(Users, models.Model):
+    doc = models.OneToOneField(
+        Users,
+        on_delete=models.CASCADE,
+        primary_key=True,
+    )
+
+    specialization = models.CharField(max_length=255, blank=True, null=True, default="Doc")
+    doctorname = models.CharField(db_column='doctorName', max_length=255, blank=True,
+                                  null=True)  # Field name made lowercase.
+    docfees = models.CharField(db_column='docFees', max_length=255, blank=True, null=True)  # Field name made lowercase.
+    contactno = models.BigIntegerField(blank=True, null=True)
+    creationdate = models.DateTimeField(db_column='creationDate', blank=True, null=True,
+                                        default=django.utils.timezone.now)  # Field name made lowercase.
+    REQUIRED_FIELDS = ['password']
+    USERNAME_FIELD = 'user_email'
+    is_anonymous = False
+    is_authenticated = True
+    objects = DocAccountManager()
+
+    class Meta:
+        managed = True
+        db_table = 'doctors'
+
+    def __str__(self):
+        return str(self.doctorname)
+
+
+class Appointment(models.Model):
+    doctorspecialization = models.CharField(db_column='doctorSpecialization', max_length=255, blank=True,
+                                            null=True)  # Field name made lowercase.
+    doctorid = models.IntegerField(db_column='doctorId', blank=True, null=True)  # Field name made lowercase.
+    userid = models.IntegerField(db_column='userId', blank=True, null=True)  # Field name made lowercase.
+    consultancyfees = models.IntegerField(db_column='consultancyFees', blank=True,
+                                          null=True)  # Field name made lowercase.
+    appointmentdate = models.CharField(db_column='appointmentDate', max_length=255, blank=True,
+                                       null=True)  # Field name made lowercase.
+    appointmenttime = models.CharField(db_column='appointmentTime', max_length=255, blank=True,
+                                       null=True)  # Field name made lowercase.
+    postingdate = models.DateTimeField(db_column='postingDate', blank=True, null=True)  # Field name made lowercase.
+    userstatus = models.IntegerField(db_column='userStatus', blank=True, null=True)  # Field name made lowercase.
+    doctorstatus = models.IntegerField(db_column='doctorStatus', blank=True, null=True)  # Field name made lowercase.
+    updationdate = models.DateTimeField(db_column='updationDate', blank=True, null=True)  # Field name made lowercase.
+    doc_notes = models.TextField(blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'appointment'
+
+
 class Doctorslog(models.Model):
     uid = models.IntegerField(blank=True, null=True)
     username = models.CharField(max_length=255, blank=True, null=True)
@@ -249,106 +369,3 @@ class Userlog(models.Model):
     class Meta:
         managed = True
         db_table = 'userlog'
-
-
-class AccountManager(BaseUserManager):
-    def create_user(self, user_email, firstname, lastname, address, city, password):
-        user = self.model(user_email=user_email, firstname=firstname, lastname=lastname, address=address, city=city,
-                          password=password)
-        user.set_password(password)
-        user.is_staff = False
-        user.is_superuser = False
-        user.save(using=self._db)
-        return user
-
-    def create_superuser(self):
-        pass
-
-    def get_by_natural_key(self, email_):
-        print(email_)
-        return self.get(user_email=email_)
-
-    class Meta:
-        managed = True
-
-
-class Users(AbstractBaseUser, PermissionsMixin):
-    firstname = models.CharField(db_column='firstName', max_length=255, blank=True,
-                                 null=True)  # Field name made lowercase.
-    lastname = models.CharField(db_column='lastName', max_length=255, blank=True,
-                                null=True)  # Field name made lowercase.
-    address = models.CharField(blank=True, max_length=255,
-                               null=True)
-    city = models.CharField(max_length=255, blank=True, null=True)
-    gender = models.CharField(max_length=255, blank=True, null=True)
-    user_email = models.CharField(max_length=255, blank=True, null=True, unique=True)
-    password = models.CharField(max_length=255, blank=True, null=True)
-    regdate = models.DateTimeField(db_column='regDate', blank=True, null=True,default=datetime.now())  # Field name made lowercase.
-    updationdate = models.DateTimeField(db_column='updationDate', blank=True, null=True)  # Field name made lowercase.
-    users_ptr = models.CharField(max_length=100, default=False)
-    REQUIRED_FIELDS = ['password']
-    USERNAME_FIELD = 'user_email'
-    is_anonymous = False
-    is_authenticated = True
-    is_staff = True
-    is_superuser = True
-    objects = AccountManager()
-
-    @property
-    def token(self):
-        dt = datetime.now() + timedelta()
-        token = jwt.encode({
-            'id': self.user_email,
-            'exp': int(time.mktime(dt.timetuple()))
-        }, settings.SECRET_KEY, algorithm='HS256')
-        return token.decode('utf-8')
-
-    class Meta:
-        managed = True
-        db_table = 'users'
-
-    def __str__(self):
-        return self.user_email
-
-
-class DocAccountManager(BaseUserManager):
-    def create_doctor(self, specialization, doctorname, address, docfees, contactno, docemail, password):
-        doc = self.model(specialization=specialization, doctorname=doctorname, address=address, docfees=docfees,
-                         contactno=contactno, docemail=docemail,
-                         password=password)
-        doc.set_password(password)
-        doc.is_staff = False
-        doc.is_superuser = False
-        doc.save(using=self._db)
-        return doc
-
-    def create_superuser(self):
-        pass
-
-    def get_by_natural_key(self, docemail_):
-        print(docemail_)
-        return self.get(docemail=docemail_)
-
-    class Meta:
-        managed = True
-
-
-class Doctors(Users, models.Model):
-    specialization = models.CharField(max_length=255, blank=True, null=True, default="Doc")
-    doctorname = models.CharField(db_column='doctorName', max_length=255, blank=True,
-                                  null=True)  # Field name made lowercase.
-    docfees = models.CharField(db_column='docFees', max_length=255, blank=True, null=True)  # Field name made lowercase.
-    contactno = models.BigIntegerField(blank=True, null=True)
-    creationdate = models.DateTimeField(db_column='creationDate', blank=True, null=True, default=datetime.now())  # Field name made lowercase.
-    REQUIRED_FIELDS = ['password']
-    USERNAME_FIELD = 'user_email'
-    is_anonymous = False
-    is_authenticated = True
-    objects = DocAccountManager()
-
-    class Meta:
-        managed = True
-        db_table = 'doctors'
-
-    def __str__(self):
-        return self.user_email
