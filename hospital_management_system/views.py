@@ -72,6 +72,9 @@ def user_register(request):
                 city = form.cleaned_data['city']
                 password = form.cleaned_data['password']
                 gender = form.cleaned_data['gender']
+                user_type = 0
+                if "register" in str(request.path):
+                    user_type = 1
                 data = {
                     "user_email": user_email,
                     "firstname": firstname,
@@ -79,7 +82,8 @@ def user_register(request):
                     "address": address,
                     "city": city,
                     "gender": gender,
-                    "password": password
+                    "password": password,
+                    "user_type": user_type
                 }
                 if serialized.create(data):
                     messages.info(request, 'Your registration was completed successfully!')
@@ -125,8 +129,12 @@ class LoginView(View):
                 if user.is_active:
                     login(request, user)
                     request.session['username'] = username
-                    # return HttpResponse(template.render(context, request))
-                    return redirect('user_dashboard')
+                    docs = [k["user_id"] for k in list(Doctors.objects.values('user_id'))]
+                    # return redirect('user_dashboard')
+                    if request.user.id not in docs:
+                        return redirect('user_dashboard')
+                    else:
+                        return redirect('doctor_dashboard')
             else:
                 return render(request, 'hms/user-login.html', {'form': form})
         return render(request, 'hms/user-login.html', {'form': form})
@@ -138,16 +146,34 @@ class USerDashView(View):
         return render(request, 'hms/dashboard.html')
 
 
+class DocDashView(View):
+    @method_decorator(login_required)
+    def get(self, request):
+        return render(request, 'hms/doctor/dashboard.html')
+
+
 class AppointmentHistoryView(View):
     @method_decorator(login_required)
     def get(self, request):
         return render(request, 'hms/appointment_history.html')
 
 
+class DocAppointmentHistoryView(View):
+    @method_decorator(login_required)
+    def get(self, request):
+        return render(request, 'hms/doctor/appointments.html')
+
+
 class BookAppointmentView(View):
     @method_decorator(login_required)
     def get(self, request):
         return render(request, 'hms/book_appointment.html')
+
+
+class EditProfileView(View):
+    @method_decorator(login_required)
+    def get(self, request):
+        return render(request, 'hms/edit_profile.html')
 
 
 # @login_required()

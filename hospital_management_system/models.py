@@ -14,6 +14,7 @@ from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import UserManager, AbstractUser, PermissionsMixin
 from django.db import models
+from django.db.models import OuterRef, Subquery
 from django.forms import PasswordInput
 
 import hospital_management_system
@@ -140,10 +141,10 @@ class Admin(models.Model):
 
 
 class AccountManager(BaseUserManager):
-    def create_user(self, user_email, firstname, lastname, address, city, gender, password):
+    def create_user(self, user_email, firstname, lastname, address, city, gender, password, user_type):
         user = self.model(user_email=user_email, firstname=firstname, lastname=lastname, address=address, city=city,
                           gender=gender,
-                          password=password)
+                          password=password, user_type=user_type)
         user.set_password(password)
         user.is_staff = False
         user.is_superuser = False
@@ -182,6 +183,7 @@ class Users(AbstractBaseUser, PermissionsMixin):
                                    default=django.utils.timezone.now)  # Field name made lowercase.
     updationdate = models.DateTimeField(db_column='updationDate', blank=True, null=True)  # Field name made lowercase.
     users_ptr = models.CharField(max_length=100, default=False)
+    user_type = models.IntegerField(max_length=11, default=False)
     REQUIRED_FIELDS = ['password']
     USERNAME_FIELD = 'user_email'
     is_anonymous = False
@@ -249,7 +251,7 @@ class Doctors(models.Model):
     # )
 
     specialization = models.ForeignKey(Doctorspecilization, on_delete=models.CASCADE)
-    doctorname = models.ForeignKey(Users, on_delete=models.CASCADE)
+    user = models.ForeignKey(Users, on_delete=models.CASCADE)
     docfees = models.CharField(db_column='docFees', max_length=255, blank=True, null=True)  # Field name made lowercase.
     contactno = models.BigIntegerField(blank=True, null=True)
     creationdate = models.DateTimeField(db_column='creationDate', blank=True, null=True,
@@ -260,7 +262,7 @@ class Doctors(models.Model):
         db_table = 'doctors'
 
     def __str__(self):
-        return str(self.doctorname)
+        return str(self.user)
 
 
 class Appointment(models.Model):
