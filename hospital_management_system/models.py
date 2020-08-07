@@ -265,6 +265,31 @@ class Doctors(models.Model):
         return str(self.user)
 
 
+class Patient(models.Model):
+    firstname = models.CharField(db_column='firstName', max_length=255, blank=True,
+                                 null=True)  # Field name made lowercase.
+    lastname = models.CharField(db_column='lastName', max_length=255, blank=True,
+                                null=True)  # Field name made lowercase.
+    middlename = models.CharField(db_column='middleName', max_length=255, blank=True,
+                                null=True)
+    address = models.CharField(blank=True, max_length=255,
+                               null=True)
+    city = models.CharField(max_length=255, blank=True, null=True)
+    gender = models.CharField(max_length=255, blank=True, null=True)
+    user_email = models.CharField(max_length=255, blank=True, null=True, unique=True)
+    height = models.FloatField(blank=True, null=True, unique=True)
+    weight = models.FloatField(blank=True, null=True, unique=True)
+    contact = models.CharField(max_length=255,blank=True, null=True, unique=True)
+    county = models.CharField(max_length=255,blank=True, null=True, unique=True)
+
+    class Meta:
+        managed = True
+        db_table = 'patients'
+
+    def __str__(self):
+        return str(self.doc)
+
+
 class Appointment(models.Model):
     doctorspecialization = models.CharField(db_column='doctorSpecialization', max_length=255, blank=True,
                                             null=True)  # Field name made lowercase.

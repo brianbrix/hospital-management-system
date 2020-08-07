@@ -24,9 +24,39 @@ class CustomUserCreationForm(forms.ModelForm):
         self.fields['user_email'].widget.attrs.update({'class': 'form-control', 'placeholder': 'email@example.com'})
         self.fields['address'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Address'})
         self.fields['city'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Nairobi'})
-        # self.fields['gender'].widget.attrs.update({'class': 'form-control'})
-        # self.fields['user_email'].widget.attrs.update({'class': 'form-control'})
-        # self.fields['user_email'].widget.attrs.update({'class': 'form-control'})
+
+
+class PatientDetailsForm(forms.ModelForm):
+    CHOICES = [('Male', 'Male'), ('Female', 'Female'),('other', 'Prefer not to say')]
+    CHOICES_STATUS = [('single', 'Single'), ('Married', 'Married'),('Divorced', 'Divorced'),('Separated', 'Separated'),('other', 'Prefer not to say')]
+    MEDICATIONS = [('yes', 'Yes'), ('no', 'No')]
+    gender = forms.ChoiceField(widget=forms.RadioSelect, choices=CHOICES)
+    medications = forms.ChoiceField(widget=forms.RadioSelect, choices=MEDICATIONS)
+    marriage = forms.ChoiceField(widget=forms.RadioSelect, choices=CHOICES_STATUS)
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'placeholder': 'password', "class": "form-control"}))
+    password_again = forms.CharField(
+        widget=forms.PasswordInput(attrs={'placeholder': 'password', "class": "form-control"}))
+    date_of_birth = forms.DateField(widget=forms.SelectDateWidget(attrs={'class': 'form-control'}))
+    medication_details = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control'}))
+    previous_conditions = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control'}))
+
+    class Meta:
+        model = Patient
+        fields = ['firstname', 'lastname', 'middlename', 'address', 'city', 'user_email','height', 'weight', 'contact', 'county', 'medications', 'medication_details', 'previous_conditions']
+
+    def __init__(self, *args, **kwargs):
+        super(PatientDetailsForm, self).__init__(*args, **kwargs)
+        self.fields['firstname'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Firstname'})
+        self.fields['middlename'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Middlename'})
+        self.fields['lastname'].widget.attrs.update({'class': 'form-control', 'placeholder': 'LastName'})
+        self.fields['user_email'].widget.attrs.update({'class': 'form-control', 'placeholder': 'email@example.com'})
+        self.fields['address'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Address'})
+        self.fields['city'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Nairobi'})
+        self.fields['height'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Height(m)'})
+        self.fields['weight'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Weight(kg)'})
+        self.fields['contact'].widget.attrs.update({'class': 'form-control', 'placeholder': '07xxxxxxxx'})
+        self.fields['county'].widget.attrs.update({'class': 'form-control', 'placeholder': 'County'})
 
 
 class LoginForm(forms.Form):

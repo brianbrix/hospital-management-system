@@ -20,6 +20,7 @@ urlpatterns = [
     re_path('login', LoginView.as_view(), name="user_login"),
     re_path('register', views.user_register, name="user_register"),
     re_path('admin', views.admin_login, name="admin_login"),
+    re_path('add-patient', views.add_patient, name="add_patient"),
     re_path('contact', views.contact, name="contact"),
     path('<int:question_id>/results/', views.results, name='results'),
     path('<int:question_id>/vote/', views.vote, name='vote'),
@@ -29,4 +30,5 @@ urlpatterns = [
     path('doc_appointment_history', DocAppointmentHistoryView.as_view(), name='doc_appointment_history'),
     path('book-appointment', BookAppointmentView.as_view(), name='book_appointment'),
     path('edit-profile', EditProfileView.as_view(), name='edit_profile'),
+    # path('add-patient', AddPatientView.as_view(), name='add_patient'),
 ]

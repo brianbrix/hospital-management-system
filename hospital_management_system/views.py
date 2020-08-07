@@ -102,6 +102,51 @@ def user_register(request):
     return render(request, 'hms/user-register.html', {'form': form})
 
 
+@api_view(['GET', 'POST'])
+def add_patient(request):
+    if request.method == 'POST':
+        form = PatientDetailsForm(request.POST)
+    #     serialized = UserRegistrationSerializer(data=request.data)
+    #     if serialized.is_valid():
+    #         user = form.save(commit=False)
+    #         try:
+    #             user_email = form.cleaned_data['user_email']
+    #             firstname = form.cleaned_data['firstname']
+    #             lastname = form.cleaned_data['lastname']
+    #             address = form.cleaned_data['address']
+    #             city = form.cleaned_data['city']
+    #             password = form.cleaned_data['password']
+    #             gender = form.cleaned_data['gender']
+    #             user_type = 0
+    #             if "register" in str(request.path):
+    #                 user_type = 1
+    #             data = {
+    #                 "user_email": user_email,
+    #                 "firstname": firstname,
+    #                 "lastname": lastname,
+    #                 "address": address,
+    #                 "city": city,
+    #                 "gender": gender,
+    #                 "password": password,
+    #                 "user_type": user_type
+    #             }
+    #             if serialized.create(data):
+    #                 messages.info(request, 'Your registration was completed successfully!')
+    #                 return redirect('user_login')
+    #             else:
+    #                 messages.warning(request, 'Failed to register! Please try again later.')
+    #                 return redirect('user_register')
+    #         except IntegrityError as e:
+    #             user.delete()
+    #             return HttpResponse(e)
+    #     else:
+    #         print("Please check the serializer")
+    #         messages.warning(request, 'Failed to register! Please try again later.')
+    # else:
+    form = PatientDetailsForm()
+    return render(request, 'hms/admin/new_patient/New_Patient_Enrollment_Form.html', {'form': form})
+
+
 class LoginView(View):
     form = LoginForm
     initial = {'key': 'value'}
@@ -150,6 +195,12 @@ class DocDashView(View):
     @method_decorator(login_required)
     def get(self, request):
         return render(request, 'hms/doctor/dashboard.html')
+
+
+class AddPatientView(View):
+    # @method_decorator(login_required)
+    def get(self, request):
+        return render(request, 'hms/admin/new_patient/New_Patient_Enrollment_Form.html')
 
 
 class AppointmentHistoryView(View):

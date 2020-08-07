@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+	<head>
+		<title>Add Patient</title>
+		{% include 'hms/links.html' %}
+
+		<script type="text/javascript">
+function valid()
+{
+ if(document.registration.password.value!= document.registration.password_again.value)
+{
+alert("Password and Confirm Password Field do not match  !!");
+document.registration.password_again.focus();
+return false;
+}
+return true;
+}
+</script>
+
+
+	</head>
+
+	<body class="login">
+		<!-- start: REGISTRATION -->
+		<div class="row">
+			<div class="main-login col-xs-10 col-xs-offset-1 col-sm-8 col-sm-offset-2 col-md-4 col-md-offset-4">
+				<div class="logo margin-top-30">
+				<a href="../index.html"><h2>HMS | Patient Registration</h2></a>
+				</div>
+				<!-- start: REGISTER BOX -->
+				<div class="box-register">
+					<form name="registration" id="registration" action="{% url 'user_register' %}"  method="post" onSubmit="return valid();">
+						{% csrf_token %}
+						<fieldset>
+							<legend>
+								Patient Details
+							</legend>
+							<p>
+								Enter patient details below:
+							</p>
+							<div class="form-group">
+								{{form.firstname}}
+								{{ form.firstname.errors }}
+							</div>
+							<div class="form-group">
+								{{form.lastname}}
+								{{ form.lastname.errors }}
+							</div>
+							<div class="form-group">
+								{{form.address}}
+								{{ form.address.errors }}
+							</div>
+							<div class="form-group">
+								{{form.city}}
+								{{form.city.errors}}
+							</div>
+							<div class="form-group">
+									{{form.gender}}
+									{{form.gender.errors}}
+							</div>
+                          <div class="form-group">
+									{{form.date_of_birth}}
+									{{form.date_of_birth.errors}}
+							</div>
+							<div class="form-group">
+									{{form.height}}
+									{{form.height.errors}}
+							</div>
+                          <div class="form-group">
+									{{form.weight}}
+									{{form.weight.errors}}
+							</div>
+                          <div class="form-group">
+									{{form.contact}}
+									{{form.contact.errors}}
+							</div>
+                          <div class="form-group">
+                            <label>Marital status</label>
+									{{form.marriage}}
+									{{form.marriage.errors}}
+							</div>
+                          <div class="form-group">
+                            <label>Taking any medications</label>
+									{{form.medications}}
+									{{form.medications.errors}}
+							</div>
+                          <div class="form-group">
+                            <label>If yes state details here:</label>
+									{{form.medication_details}}
+									{{form.medication_details.errors}}
+							</div>
+                           <div class="form-group">
+                            <label>Any previous conditions</label>
+									{{form.previous_conditions}}
+									{{form.previous_conditions.errors}}
+							</div>
+							<div class="form-actions">
+								<button type="submit" class="btn btn-primary pull-right" id="submit" name="submit">
+									Submit <i class="fa fa-arrow-circle-right"></i>
+								</button>
+							</div>
+						</fieldset>
+					</form>
+
+					<div class="copyright">
+						&copy; <span class="current-year"></span><span class="text-bold text-uppercase"> HMS</span>. <span>All rights reserved</span>
+					</div>
+
+				</div>
+
+			</div>
+		</div>
+		<script src="vendor/jquery/jquery.min.js"></script>
+		<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+		<script src="vendor/modernizr/modernizr.js"></script>
+		<script src="vendor/jquery-cookie/jquery.cookie.js"></script>
+		<script src="vendor/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+		<script src="vendor/switchery/switchery.min.js"></script>
+		<script src="vendor/jquery-validation/jquery.validate.min.js"></script>
+		<script src="assets/js/main.js"></script>
+		<script src="assets/js/login.js"></script>
+		<script>
+			jQuery(document).ready(function() {
+				Main.init();
+				Login.init();
+			});
+		</script>
+
+	<script>
+function userAvailability() {
+$("#loaderIcon").show();
+jQuery.ajax({
+url: "check_availability.php",
+data:'email='+$("#email").val(),
+type: "POST",
+success:function(data){
+$("#user-availability-status1").html(data);
+$("#loaderIcon").hide();
+},
+error:function (){}
+});
+}
+</script>
+
+	</body>
+	<!-- end: BODY -->
+</html>
