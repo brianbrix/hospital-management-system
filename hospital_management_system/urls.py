@@ -30,5 +30,6 @@ urlpatterns = [
     path('doc_appointment_history', DocAppointmentHistoryView.as_view(), name='doc_appointment_history'),
     path('book-appointment', BookAppointmentView.as_view(), name='book_appointment'),
     path('edit-profile', EditProfileView.as_view(), name='edit_profile'),
+    path('staff-dashboard', StaffDashView.as_view(), name='staff_dashboard'),
     # path('add-patient', AddPatientView.as_view(), name='add_patient'),
 ]

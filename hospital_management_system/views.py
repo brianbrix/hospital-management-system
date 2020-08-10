@@ -176,10 +176,12 @@ class LoginView(View):
                     request.session['username'] = username
                     docs = [k["user_id"] for k in list(Doctors.objects.values('user_id'))]
                     # return redirect('user_dashboard')
-                    if request.user.id not in docs:
+                    if request.user.user_type == 0:
                         return redirect('user_dashboard')
-                    else:
+                    elif request.user.user_type == 1:
                         return redirect('doctor_dashboard')
+                    elif request.user.user_type == 2:
+                        return redirect('staff_dashboard')
             else:
                 return render(request, 'hms/user-login.html', {'form': form})
         return render(request, 'hms/user-login.html', {'form': form})
@@ -195,6 +197,12 @@ class DocDashView(View):
     @method_decorator(login_required)
     def get(self, request):
         return render(request, 'hms/doctor/dashboard.html')
+
+
+class StaffDashView(View):
+    @method_decorator(login_required)
+    def get(self, request):
+        return render(request, 'hms/admin/dashboard.html')
 
 
 class AddPatientView(View):
